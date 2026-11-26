@@ -1,0 +1,2 @@
+const styles = { present: 'bg-emerald-100 text-emerald-700', late: 'bg-amber-100 text-amber-700', absent: 'bg-rose-100 text-rose-700', leave: 'bg-violet-100 text-violet-700', half_day: 'bg-sky-100 text-sky-700', active: 'bg-emerald-100 text-emerald-700', inactive: 'bg-slate-100 text-slate-600' };
+export default function StatusBadge({ value }) { return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold capitalize ${styles[value] || 'bg-slate-100 text-slate-600'}`}>{String(value || 'unknown').replace('_', ' ')}</span>; }

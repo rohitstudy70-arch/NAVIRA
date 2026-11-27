@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch src/server.js",
+    "build": "echo \"Server ready\"",
     "start": "node src/server.js",
     "seed": "node src/seeds/seed.js"
   },

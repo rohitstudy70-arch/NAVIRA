@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
-import { api } from '../lib/api';
+import { api, socketUrl } from '../lib/api';
 import StatusBadge from '../components/StatusBadge';
-
-const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 function StatCard({ label, value, detail, accent }) { return <div className="panel p-5"><div className="flex items-start justify-between"><div><p className="text-sm font-medium text-slate-500">{label}</p><p className="mt-2 text-3xl font-bold tracking-tight">{value}</p><p className="mt-1 text-xs text-slate-500">{detail}</p></div><span className={`grid h-10 w-10 place-items-center rounded-xl ${accent}`}>●</span></div></div>; }
 
 export default function DashboardPage({ onToast }) {

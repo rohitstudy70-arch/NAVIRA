@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { api, baseUrl } from '../lib/api';
-
-const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+import { api, baseUrl, socketUrl } from '../lib/api';
 
 // Web Audio sound synthesizer (no external audio files required)
 function playTone(type = 'success') {

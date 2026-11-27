@@ -40,6 +40,35 @@ export async function correctAttendance(req, res) {
   res.json({ item: row });
 }
 
+export async function kioskInfo(req, res) {
+  const date = schoolDate();
+  const Setting = (await import('../models/Setting.js')).default;
+  const Device = (await import('../models/Device.js')).default;
+  const Student = (await import('../models/Student.js')).default;
+  const Staff = (await import('../models/Staff.js')).default;
+
+  const [setting, devices, liveScans, totalStudents, totalStaff, totalScansToday] = await Promise.all([
+    Setting.findOne().lean(),
+    Device.find({ isActive: true }).select('deviceId name location direction').lean(),
+    Attendance.find({ date }).populate('person', 'name photo class section department designation').populate('inDevice outDevice', 'name location').sort({ updatedAt: -1 }).limit(10),
+    Student.countDocuments({ status: 'active' }),
+    Staff.countDocuments({ status: 'active' }),
+    Attendance.countDocuments({ date })
+  ]);
+
+  res.json({
+    schoolName: setting?.schoolName || 'Navira English School',
+    tagline: 'A Complete Security Solution • Smart RFID Attendance',
+    academicYear: setting?.academicYear || '2026-2027',
+    date,
+    devices: devices.length ? devices : [{ deviceId: 'GATE01', name: 'Main Gate Reader', location: 'Main Entrance', direction: 'auto' }],
+    totalScansToday,
+    totalStudents,
+    totalStaff,
+    recentScans: liveScans
+  });
+}
+
 export async function dashboard(req, res) {
   const date = req.query.date || schoolDate();
   const [byStatus, liveScans, totalStudents, totalStaff] = await Promise.all([

@@ -15,7 +15,8 @@ export async function login(req, res) {
   if (!user || !user.isActive || !(await user.verifyPassword(password))) return res.status(401).json({ message: 'Invalid email or password' });
   user.lastLoginAt = new Date();
   await user.save();
-  await audit({ ...req, user }, 'login', 'User', user._id, undefined, { email: user.email });
+  req.user = user;
+  await audit(req, 'login', 'User', user._id, undefined, { email: user.email });
   res.json({ token: signToken(user), user: user.toSafeJSON() });
 }
 

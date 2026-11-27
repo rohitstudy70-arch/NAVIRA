@@ -8,7 +8,7 @@ export function audit(req, action, entityType, entityId, before, after) {
     entityId: entityId?.toString(),
     before,
     after,
-    ipAddress: req.ip,
-    userAgent: req.get('user-agent')
+    ipAddress: req.ip || req.socket?.remoteAddress,
+    userAgent: typeof req.get === 'function' ? req.get('user-agent') : (req.headers && req.headers['user-agent'])
   });
 }

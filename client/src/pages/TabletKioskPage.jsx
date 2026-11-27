@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { api, baseUrl, socketUrl } from '../lib/api';
+import schoolLogo from '../assets/logo.jpg';
 
 // Web Audio sound synthesizer (no external audio files required)
 function playTone(type = 'success') {
@@ -293,9 +294,11 @@ export default function TabletKioskPage({ onExit, onToast }) {
       <header className="relative z-10 flex h-20 items-center justify-between border-b border-slate-800/80 bg-slate-900/60 px-6 backdrop-blur-md">
         {/* Brand */}
         <div className="flex items-center gap-3.5">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-500 text-2xl font-black text-white shadow-lg shadow-blue-900/40">
-            N
-          </div>
+          <img
+            src={schoolLogo}
+            alt="Navira English School Logo"
+            className="h-12 w-12 rounded-full object-cover border-2 border-white/20 bg-white shadow-lg"
+          />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold tracking-tight text-white">{schoolName}</h1>

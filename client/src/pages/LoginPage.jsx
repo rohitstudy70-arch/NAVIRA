@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
+import schoolLogo from '../assets/logo.jpg';
 
 export default function LoginPage({ onOpenKiosk }) {
   const { login } = useAuth();
-  // Credentials must start completely empty - never exposed to other devices or phones
+  // Credentials start empty - never exposed to other devices or phones
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -41,12 +42,17 @@ export default function LoginPage({ onOpenKiosk }) {
 
   return (
     <main className="grid min-h-screen bg-slate-950 lg:grid-cols-2">
+      {/* LEFT BRANDING PANEL (DESKTOP) */}
       <section className="hidden flex-col justify-between bg-gradient-to-br from-blue-700 via-blue-800 to-slate-950 p-12 text-white lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-xl bg-white text-xl font-black text-blue-700">N</div>
+        <div className="flex items-center gap-4">
+          <img
+            src={schoolLogo}
+            alt="Navira English School Logo"
+            className="h-16 w-16 rounded-full object-cover border-2 border-white/20 bg-white shadow-xl"
+          />
           <div>
-            <p className="font-bold">Navira School</p>
-            <p className="text-sm text-blue-200">RFID Attendance System</p>
+            <p className="text-xl font-bold tracking-tight">Navira English School</p>
+            <p className="text-xs text-blue-200 font-medium">Gariya Balua (Purnea) • RFID Attendance</p>
           </div>
         </div>
         <div>
@@ -56,36 +62,48 @@ export default function LoginPage({ onOpenKiosk }) {
             Monitor live RFID scans, manage attendance, and keep parents informed from one secure dashboard.
           </p>
         </div>
-        <p className="text-sm text-blue-200">© {new Date().getFullYear()} Navira School</p>
+        <p className="text-sm text-blue-200">© {new Date().getFullYear()} Navira English School, Gariya Balua (Purnea)</p>
       </section>
 
+      {/* RIGHT SIGN IN PANEL */}
       <section className="flex items-center justify-center bg-slate-50 p-5 dark:bg-slate-950">
         <form onSubmit={submit} className="w-full max-w-md" autoComplete="off">
-          <div className="mb-9 lg:hidden text-center">
-            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-600 text-xl font-black text-white">N</div>
-            <h1 className="text-2xl font-bold">Navira School</h1>
-            <p className="text-sm text-slate-500">RFID Attendance System</p>
+          {/* Logo & School Header */}
+          <div className="mb-7 flex flex-col items-center text-center">
+            <img
+              src={schoolLogo}
+              alt="Navira English School Logo"
+              className="mb-3.5 h-20 w-20 rounded-full object-cover border-2 border-blue-500/30 bg-white shadow-xl"
+            />
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Navira English School
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+              Gariya Balua (Purnea) • Smart RFID Gate & Admin Portal
+            </p>
           </div>
 
           <div className="panel p-7 sm:p-8">
-            <h2 className="text-2xl font-bold">Sign In</h2>
-            <p className="mt-2 text-sm text-slate-500">Enter your credentials to access the administration portal.</p>
+            <h2 className="text-xl font-bold">Sign In</h2>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Enter your credentials to access the administration portal.
+            </p>
 
             {error && (
-              <div className="mt-5 rounded-xl bg-rose-50 border border-rose-200 px-3.5 py-2.5 text-sm text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300">
+              <div className="mt-4 rounded-xl bg-rose-50 border border-rose-200 px-3.5 py-2.5 text-sm text-rose-700 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-300">
                 {error}
               </div>
             )}
             {notice && (
-              <div className="mt-5 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-300">
+              <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-2.5 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-300">
                 {notice}
               </div>
             )}
 
-            <label className="mt-6 block text-sm font-semibold">
+            <label className="mt-5 block text-sm font-semibold">
               Email Address
               <input
-                className="field mt-2"
+                className="field mt-1.5"
                 type="email"
                 placeholder="name@school.edu"
                 value={form.email}
@@ -100,7 +118,7 @@ export default function LoginPage({ onOpenKiosk }) {
 
             <label className="mt-4 block text-sm font-semibold">
               Password
-              <div className="relative mt-2">
+              <div className="relative mt-1.5">
                 <input
                   className="field pr-11"
                   type={showPassword ? 'text' : 'password'}

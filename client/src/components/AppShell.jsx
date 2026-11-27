@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import schoolLogo from '../assets/logo.jpg';
 
 const nav = [
   ['dashboard', '⌂', 'Dashboard'], ['kiosk', '📱', 'Tablet Kiosk'], ['attendance', '✓', 'Attendance'], ['reports', '↗', 'Reports'], ['students', '◎', 'Students'], ['staff', '♙', 'Staff'], ['classes', '▦', 'Classes'], ['leaves', '◫', 'Leave requests'], ['devices', '◉', 'RFID Devices'], ['settings', '⚙', 'Settings'], ['audit', '◷', 'Audit log']
@@ -15,8 +16,8 @@ export default function AppShell({ page, onNavigate, children }) {
   const currentTitle = nav.find(([id]) => id === page)?.[2] || 'Navira School';
   const side = <aside className="flex h-full w-72 flex-col bg-slate-950 text-slate-300">
     <div className="flex items-center gap-3 border-b border-slate-800 px-6 py-5">
-      <div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-600 text-xl font-black text-white">N</div>
-      <div><p className="font-bold text-white">Navira School</p><p className="text-xs text-blue-300">RFID Attendance</p></div>
+      <img src={schoolLogo} alt="Navira English School Logo" className="h-11 w-11 rounded-full object-cover border border-white/20 bg-white shadow-md" />
+      <div><p className="font-bold text-white leading-tight">Navira English School</p><p className="text-[11px] text-blue-300">Gariya Balua (Purnea)</p></div>
     </div>
     <nav className="flex-1 space-y-1 p-3">
       {allowedNav.map(([id, icon, label]) => <button key={id} onClick={() => { onNavigate(id); setOpen(false); }} className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition ${page === id ? 'bg-blue-600 text-white shadow-lg shadow-blue-950/40' : 'hover:bg-slate-800 hover:text-white'}`}><span className="w-5 text-center text-base">{icon}</span>{label}</button>)}

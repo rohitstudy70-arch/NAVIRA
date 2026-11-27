@@ -12,10 +12,118 @@ export function DevicesPage({ onToast }) {
 
 export function SettingsPage({ onToast }) {
   const [item, setItem] = useState(null); const [busy, setBusy] = useState(false);
+  const [pwd, setPwd] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwdBusy, setPwdBusy] = useState(false);
+
   useEffect(() => { api('/settings').then(({ item: data }) => setItem(data)).catch((e) => onToast(e.message, 'error')); }, []);
   async function save(event) { event.preventDefault(); setBusy(true); try { const { item: saved } = await api('/settings', { method: 'PATCH', body: JSON.stringify(item) }); setItem(saved); onToast('School attendance rules updated.'); } catch (error) { onToast(error.message, 'error'); } finally { setBusy(false); } }
+
+  async function updatePassword(e) {
+    e.preventDefault();
+    if (pwd.newPassword !== pwd.confirmPassword) {
+      onToast('New password and confirm password do not match', 'error');
+      return;
+    }
+    if (pwd.newPassword.length < 8) {
+      onToast('Password must be at least 8 characters long', 'error');
+      return;
+    }
+    setPwdBusy(true);
+    try {
+      await api('/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword: pwd.currentPassword, newPassword: pwd.newPassword })
+      });
+      onToast('Password changed successfully! Keep it confidential.');
+      setPwd({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      onToast(err.message || 'Failed to update password', 'error');
+    } finally {
+      setPwdBusy(false);
+    }
+  }
+
   if (!item) return <p className="text-slate-500">Loading settings…</p>;
-  return <div className="space-y-6"><section><p className="text-sm font-semibold uppercase tracking-wider text-blue-700">Configuration</p><h2 className="mt-1 text-2xl font-bold">School settings</h2><p className="mt-1 text-sm text-slate-500">Set attendance rules, academic calendar defaults, and message behavior.</p></section><form className="panel p-5 sm:p-6" onSubmit={save}><h3 className="font-bold">Attendance rules</h3><div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3"><Field label="School name" value={item.schoolName} set={(v) => setItem({ ...item, schoolName: v })} required/><Field label="Academic year" value={item.academicYear} set={(v) => setItem({ ...item, academicYear: v })} required/><Field label="Duplicate scan window (seconds)" type="number" value={item.duplicateWindowSeconds} set={(v) => setItem({ ...item, duplicateWindowSeconds: Number(v) })} required/><Field label="School start time" type="time" value={item.schoolStartTime} set={(v) => setItem({ ...item, schoolStartTime: v })}/><Field label="Late cutoff" type="time" value={item.lateCutoffTime} set={(v) => setItem({ ...item, lateCutoffTime: v })}/><Field label="Absence cutoff" type="time" value={item.absenceCutoffTime} set={(v) => setItem({ ...item, absenceCutoffTime: v })}/></div><div className="mt-7 border-t border-slate-200 pt-5 dark:border-slate-800"><h3 className="font-bold">Parent notifications</h3><label className="mt-4 flex items-center gap-3 text-sm font-medium"><input type="checkbox" checked={item.notifications?.entryEnabled || false} onChange={(e) => setItem({ ...item, notifications: { ...item.notifications, entryEnabled: e.target.checked } })}/> Queue an SMS notification for entry scans</label><label className="mt-3 flex items-center gap-3 text-sm font-medium"><input type="checkbox" checked={item.notifications?.exitEnabled || false} onChange={(e) => setItem({ ...item, notifications: { ...item.notifications, exitEnabled: e.target.checked } })}/> Queue an SMS notification for exit scans</label></div><button disabled={busy} className="btn-primary mt-7">{busy ? 'Saving…' : 'Save settings'}</button></form></div>;
+  return <div className="space-y-6">
+    <section>
+      <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">Configuration</p>
+      <h2 className="mt-1 text-2xl font-bold">School settings</h2>
+      <p className="mt-1 text-sm text-slate-500">Set attendance rules, academic calendar defaults, and message behavior.</p>
+    </section>
+
+    <form className="panel p-5 sm:p-6" onSubmit={save}>
+      <h3 className="font-bold">Attendance rules</h3>
+      <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Field label="School name" value={item.schoolName} set={(v) => setItem({ ...item, schoolName: v })} required/>
+        <Field label="Academic year" value={item.academicYear} set={(v) => setItem({ ...item, academicYear: v })} required/>
+        <Field label="Duplicate scan window (seconds)" type="number" value={item.duplicateWindowSeconds} set={(v) => setItem({ ...item, duplicateWindowSeconds: Number(v) })} required/>
+        <Field label="School start time" type="time" value={item.schoolStartTime} set={(v) => setItem({ ...item, schoolStartTime: v })}/>
+        <Field label="Late cutoff" type="time" value={item.lateCutoffTime} set={(v) => setItem({ ...item, lateCutoffTime: v })}/>
+        <Field label="Absence cutoff" type="time" value={item.absenceCutoffTime} set={(v) => setItem({ ...item, absenceCutoffTime: v })}/>
+      </div>
+      <div className="mt-7 border-t border-slate-200 pt-5 dark:border-slate-800">
+        <h3 className="font-bold">Parent notifications</h3>
+        <label className="mt-4 flex items-center gap-3 text-sm font-medium">
+          <input type="checkbox" checked={item.notifications?.entryEnabled || false} onChange={(e) => setItem({ ...item, notifications: { ...item.notifications, entryEnabled: e.target.checked } })}/> Queue an SMS notification for entry scans
+        </label>
+        <label className="mt-3 flex items-center gap-3 text-sm font-medium">
+          <input type="checkbox" checked={item.notifications?.exitEnabled || false} onChange={(e) => setItem({ ...item, notifications: { ...item.notifications, exitEnabled: e.target.checked } })}/> Queue an SMS notification for exit scans
+        </label>
+      </div>
+      <button disabled={busy} className="btn-primary mt-7">{busy ? 'Saving…' : 'Save settings'}</button>
+    </form>
+
+    <form className="panel p-5 sm:p-6" onSubmit={updatePassword}>
+      <div className="flex items-center gap-2">
+        <span className="text-xl">🔒</span>
+        <div>
+          <h3 className="font-bold">Account Security & Password</h3>
+          <p className="text-xs text-slate-500">Change your login password to ensure no unauthorized person or device can access this account.</p>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <label className="text-sm font-semibold">
+          Current Password
+          <input
+            type="password"
+            placeholder="••••••••"
+            className="field mt-1.5"
+            value={pwd.currentPassword}
+            onChange={(e) => setPwd({ ...pwd, currentPassword: e.target.value })}
+            required
+            autoComplete="current-password"
+          />
+        </label>
+        <label className="text-sm font-semibold">
+          New Password (min 8 chars)
+          <input
+            type="password"
+            placeholder="••••••••"
+            className="field mt-1.5"
+            value={pwd.newPassword}
+            onChange={(e) => setPwd({ ...pwd, newPassword: e.target.value })}
+            required
+            autoComplete="new-password"
+          />
+        </label>
+        <label className="text-sm font-semibold">
+          Confirm New Password
+          <input
+            type="password"
+            placeholder="••••••••"
+            className="field mt-1.5"
+            value={pwd.confirmPassword}
+            onChange={(e) => setPwd({ ...pwd, confirmPassword: e.target.value })}
+            required
+            autoComplete="new-password"
+          />
+        </label>
+      </div>
+      <button disabled={pwdBusy} className="btn-primary mt-6">
+        {pwdBusy ? 'Updating…' : 'Update Password Securely'}
+      </button>
+    </form>
+  </div>;
 }
 
 export function AuditPage({ onToast }) { const [items, setItems] = useState([]); useEffect(() => { api('/audit-logs').then(({ items: data }) => setItems(data)).catch((error) => onToast(error.message, 'error')); }, []); return <div className="space-y-6"><section><p className="text-sm font-semibold uppercase tracking-wider text-blue-700">Accountability</p><h2 className="mt-1 text-2xl font-bold">Audit log</h2><p className="mt-1 text-sm text-slate-500">Trace who changed attendance, profiles, settings, and device registrations.</p></section><section className="panel overflow-hidden"><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-sm"><thead className="table-head"><tr><th className="px-5 py-3">When</th><th className="px-4 py-3">Actor</th><th className="px-4 py-3">Action</th><th className="px-4 py-3">Record</th><th className="px-5 py-3">IP address</th></tr></thead><tbody>{items.map((item) => <tr key={item._id} className="border-b border-slate-100 last:border-0 dark:border-slate-800"><td className="px-5 py-3 text-xs">{new Date(item.createdAt).toLocaleString()}</td><td className="px-4 py-3"><p className="font-semibold">{item.actor?.name || 'System'}</p><p className="text-xs text-slate-500">{item.actor?.role || '—'}</p></td><td className="px-4 py-3 font-medium">{item.action.replace('_', ' ')}</td><td className="px-4 py-3">{item.entityType}</td><td className="px-5 py-3 font-mono text-xs">{item.ipAddress || '—'}</td></tr>)}{!items.length && <tr><td colSpan="5" className="px-5 py-12 text-center text-slate-500">No audit events recorded yet.</td></tr>}</tbody></table></div></section></div>; }

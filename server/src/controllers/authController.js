@@ -51,3 +51,18 @@ export async function resetPassword(req, res) {
   await user.save();
   res.json({ message: 'Password has been reset. You can now sign in.' });
 }
+
+export async function changePassword(req, res) {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword || newPassword.length < 8) {
+    return res.status(400).json({ message: 'Current password and a new password (8+ characters) are required' });
+  }
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user || !(await user.verifyPassword(currentPassword))) {
+    return res.status(401).json({ message: 'Current password is incorrect' });
+  }
+  user.password = newPassword;
+  await user.save();
+  await audit(req, 'change_password', 'User', user._id, undefined, { email: user.email });
+  res.json({ message: 'Password updated successfully' });
+}
